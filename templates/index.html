@@ -84,13 +84,33 @@
                 data: {},
                 success: function (response) {
                     if (response["result"] == "success") {
-                        alert(response["msg"]);
+                        let articles = response['articles']
+                        for (let i = 0; i < articles.length; i++) {
+                            let article = articles[i]
+                            let title = article['title']
+                            let url = article['url']
+                            let image = article['image']
+                            let description = article['description']
+                            let comment = article['comment']
+                            makeCard(url, title, description, comment, image)
+                        }
                     }
                 }
             })
         }
 
         function makeCard(url, title, desc, comment, image) {
+            let tempHtml = `<div class="card">
+                <img class="card-img-top"
+                     src="${image}"
+                     alt="Card image cap">
+                <div class="card-body">
+                    <a href="${url}" class="card-title">${title}</a>
+                    <p class="card-text">${desc}</p>
+                    <p class="card-text comment">${comment}</p>
+                </div>
+            </div>`
+            $('#cards-box').append(tempHtml)
         }
     </script>
 </head>
