@@ -1,3 +1,5 @@
+import requests
+from bs4 import BeautifulSoup
 from flask import Flask, render_template, request, jsonify
 
 from pymongo import MongoClient
@@ -23,9 +25,27 @@ def save_memo():
     url_receive = form['url_give']
     comment_receive = form['comment_give']
 
-    print(url_receive, comment_receive)
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36'}
+    response = requests.get(
+        url_receive,
+        headers=headers
+    )
+    soup = BeautifulSoup(response.text, 'html.parser')
+
+    title = soup.select_one('meta[property="og:title"]')
+    url = soup.select_one('meta[property="og:url"]')
+    image = soup.select_one('meta[property="og:image"]')
+    description = soup.select_one('meta[property="og:description"]')
+    print(title['content'])
+    print(url['content'])
+    print(image['content'])
+    print(description['content'])
     document = {
-        'url': url_receive,
+        'title': title['content'],
+        'image': image['content'],
+        'description': description['content'],
+        'url': url['content'],
         'comment': comment_receive,
     }
     db.articles.insert_one(document)
