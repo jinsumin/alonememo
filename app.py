@@ -50,7 +50,7 @@ def save_memo():
     }
     db.articles.insert_one(document)
     return jsonify(
-        {'result': 'success'}
+        {'result': 'success', 'msg': '저장했습니다.'}
     )
 
 # app.py 파일을 직접 실행시킬 때 동작시킴
