@@ -1,3 +1,5 @@
+import hashlib
+
 import requests
 from bs4 import BeautifulSoup
 from flask import Flask, render_template, request, jsonify
@@ -25,6 +27,30 @@ def login():
 @app.route('/register', methods=['GET'])
 def register():
     return render_template('register.html')
+
+@app.route('/api/login', methods=['POST'])
+def api_login():
+    id = request.form['id_give']
+    pw = request.form['pw_give']
+
+    # TODO id, pw 검증 후에 JWT 만들어서 리턴
+
+
+@app.route('/api/register', methods=['POST'])
+def api_register():
+    id = request.form['id_give']
+    pw = request.form['pw_give']
+
+    # salting
+    # 1. pw + 랜덤 문자열 추가(솔트)
+    # 솔트 추가된 비밀번호를 해시
+    # DB에 저장할 때는 (해시 결과물 + 적용한 솔트) 묶어서 저장
+
+    # 회원가입
+    pw_hash = hashlib.sha256(pw.encode()).hexdigest()
+    db.users.insert_one({'id': id, 'pw': pw_hash})
+
+    return jsonify({'result': 'success'})
 
 # 아티클 추가 API
 @app.route('/memo', methods=['POST'])
