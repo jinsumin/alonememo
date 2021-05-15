@@ -1,7 +1,11 @@
+import datetime
 import hashlib
+import os
 
+import jwt
 import requests
 from bs4 import BeautifulSoup
+from dotenv import load_dotenv
 from flask import Flask, render_template, request, jsonify
 
 from pymongo import MongoClient
@@ -12,6 +16,11 @@ app = Flask(__name__)
 # mongodb 추가
 client = MongoClient('localhost', 27017)
 db = client.get_database('sparta')
+
+# .env 파일을 환경변수로 설정
+load_dotenv()
+# 환경변수 읽어오기
+JWT_SECRET = os.environ['JWT_SECRET']
 
 
 # API 추가
@@ -33,7 +42,28 @@ def api_login():
     id = request.form['id_give']
     pw = request.form['pw_give']
 
-    # TODO id, pw 검증 후에 JWT 만들어서 리턴
+    pw_hash = hashlib.sha256(pw.encode()).hexdigest()
+
+    user = db.users.find_one({'id': id, 'pw': pw_hash}, {'_id': False})
+
+    # 만약 가입했다면?
+    if user:
+        # 로그인 성공이기 때문에 JWT 생성
+        expiration_time = datetime.timedelta(hours=1)
+        payload = {
+            'id': id,
+            # 발급시간으로부터 1시간동안 JWT 유효
+            'exp': datetime.datetime.utcnow() + expiration_time
+        }
+        token = jwt.encode(payload, JWT_SECRET)
+        print(token)
+
+        return jsonify({'result': 'success', 'token': token})
+    else:
+        # 가입하지 않은 상태
+        return jsonify({'result': 'fail', 'msg': '로그인 실패'})
+
+
 
 
 @app.route('/api/register', methods=['POST'])
