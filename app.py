@@ -21,7 +21,9 @@ db = client.get_database('sparta')
 load_dotenv()
 # 환경변수 읽어오기
 JWT_SECRET = os.environ['JWT_SECRET']
-
+CLIENT_ID = os.environ['CLIENT_ID']
+CALLBACK_URL = os.environ['CALLBACK_URL']
+SERVICE_URL = os.environ['SERVICE_URL']
 
 # API 추가
 @app.route('/', methods=['GET'])  # 데코레이터 문법
@@ -40,7 +42,12 @@ def index():  # 함수 이름은 고유해야 한다
 
 @app.route('/login', methods=['GET'])
 def login():
-    return render_template('login.html')
+    return render_template(
+        'login.html',
+        CLIENT_ID=CLIENT_ID,
+        CALLBACK_URL=CALLBACK_URL,
+        SERVICE_URL=SERVICE_URL
+    )
 
 @app.route('/register', methods=['GET'])
 def register():
