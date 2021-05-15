@@ -82,6 +82,14 @@
 
         }
 
+        function logOut() {
+            // 쿠키의 JWT 삭제
+            $.removeCookie('loginToken', {path: '/'})
+            alert('로그아웃')
+            // 로그인 페이지로 이동
+            window.location.href = '/login'
+        }
+
         function openClose() {
             // id 값 post-box의 display 값이 block 이면(= 눈에 보이면)
             if ($("#post-box").css("display") == "block") {
