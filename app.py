@@ -104,6 +104,16 @@ def save_memo():
     url_receive = form['url_give']
     comment_receive = form['comment_give']
 
+    token_receive = request.headers['authorization']
+    token = token_receive.split()[1]
+    print(token)
+
+    try:
+        payload = jwt.decode(token, JWT_SECRET, algorithms=['HS256'])
+        print(payload)
+    except jwt.exceptions.ExpiredSignatureError:
+        return jsonify({'result': 'fail'})
+
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36'}
     response = requests.get(
@@ -126,6 +136,7 @@ def save_memo():
         'description': description['content'],
         'url': url['content'],
         'comment': comment_receive,
+        'id': payload['id'],
     }
     db.articles.insert_one(document)
     return jsonify(

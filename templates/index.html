@@ -100,10 +100,12 @@
         function postArticle() {
             let url_give = $('#post-url').val()
             let comment_give = $('#post-comment').val()
+            let token = $.cookie('loginToken')
 
             $.ajax({
                 type: "POST",
                 url: "/memo",
+                headers: {'authorization': `Bearer ${token}`},
                 data: {'url_give': url_give, 'comment_give': comment_give},
                 success: function (response) { // 성공하면
                     if (response["result"] == "success") {
