@@ -10,6 +10,7 @@
           crossorigin="anonymous">
     <!-- JS -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
             integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
             crossorigin="anonymous"></script>
@@ -44,7 +45,50 @@
         $(document).ready(function () {
             // $("#cards-box").html("");
             // showArticles();
+            setUserInfo()
+
         });
+
+        function setUserInfo() {
+            let userInfo = $('#user-info')
+            let token = $.cookie('loginToken')
+            console.log(token)
+
+            if (token === undefined) {
+                window.location.href = '/login'
+            } else {
+                // JWT에 해당하는 사용자 정보를 받아오기
+                $.ajax({
+                    type: "POST",
+                    url: "/user",
+                    headers: {'authorization': `Bearer ${token}`},
+                    data: {},
+                    success: function (response) {
+                        if (response['result'] === 'success') {
+                            let id = response['id']
+                            userInfo.append(`
+                                <div class="btn btn-primary">${id}</div>
+                                <div class="btn btn-primary" onclick="logOut()">로그아웃</div>
+                            `)
+                        } else {
+                            alert('다시 로그인해주세요.')
+                            window.location.href = '/login'
+                        }
+
+                    }
+                })
+
+            }
+
+        }
+
+        function logOut() {
+            // 쿠키의 JWT 삭제
+            $.removeCookie('loginToken', {path: '/'})
+            alert('로그아웃')
+            // 로그인 페이지로 이동
+            window.location.href = '/login'
+        }
 
         function openClose() {
             // id 값 post-box의 display 값이 block 이면(= 눈에 보이면)
@@ -64,10 +108,12 @@
         function postArticle() {
             let url_give = $('#post-url').val()
             let comment_give = $('#post-comment').val()
+            let token = $.cookie('loginToken')
 
             $.ajax({
                 type: "POST",
                 url: "/memo",
+                headers: {'authorization': `Bearer ${token}`},
                 data: {'url_give': url_give, 'comment_give': comment_give},
                 success: function (response) { // 성공하면
                     if (response["result"] == "success") {
@@ -118,6 +164,7 @@
 </head>
 <body>
 <div class="wrap">
+    <div id="user-info"></div>
     <div class="jumbotron">
         <h1 class="display-4">{{ test }} 메모장!</h1>
         <p class="lead">중요한 링크를 저장해두고, 나중에 볼 수 있는 공간입니다</p>
