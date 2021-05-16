@@ -49,6 +49,30 @@ def login():
         SERVICE_URL=SERVICE_URL
     )
 
+@app.route('/naver', methods=['GET'])
+def callback():
+    return render_template('callback.html', CLIENT_ID=CLIENT_ID, CALLBACK_URL=CALLBACK_URL)
+
+
+@app.route('/api/register/naver', methods=['POST'])
+def api_register_naver():
+    naver_id = request.form['naver_id']
+
+    if not db.users.find_one({'id': naver_id}, {'_id': False}):
+        db.users.insert_one({'id': naver_id, 'pw': ''})
+
+    # JWT 발급
+    expiration_time = datetime.timedelta(hours=1)
+
+    payload = {
+        'id': naver_id,
+        'exp': datetime.datetime.utcnow() + expiration_time
+    }
+    token = jwt.encode(payload, JWT_SECRET)
+    print(token)
+
+    return jsonify({'result': 'success', 'token': token})
+
 @app.route('/register', methods=['GET'])
 def register():
     return render_template('register.html')
