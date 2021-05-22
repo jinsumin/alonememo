@@ -34,7 +34,7 @@ def create_app(database_name='sparta'):
     global db
     db = client.get_database(database_name)
 
-    from views import api, main, memo, user
+    from app.views import api, main, memo, user
 
     app.register_blueprint(api.bp)
     app.register_blueprint(main.bp)
